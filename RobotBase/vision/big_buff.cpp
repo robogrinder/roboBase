@@ -6,7 +6,8 @@
 #include "../gimbal.h"
 
 void big_buff() {
-    //TODO: put big buff code here.
+    // TODO: put big buff code here.
+    // this function should give the information about the predicted point
 }
 
 void big_buff_init() {

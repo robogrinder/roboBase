@@ -14,16 +14,16 @@ void *vision_main_function() {
     while (1) {
 
         switch (gimbal->getCurrentMode()) {
+
             case 0:
                 //TODO: auto-aim
                 break;
+
             case 1:
                 big_buff_init();
                 big_buff();
+                break;
 
-                break;
-            default:
-                break;
         }
     }
 }
