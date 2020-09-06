@@ -30,16 +30,15 @@ echo "** Download lateste opencv"
 #cd $folder
 git clone https://github.com/opencv/opencv.git
 git clone https://github.com/opencv/opencv_contrib.git
-unzip opencv
 cd opencv
 
 echo "** Apply patch"
 sed -i 's/include <Eigen\/Core>/include <eigen3\/Eigen\/Core>/g' modules/core/include/opencv2/core/private.hpp
 
 echo "** Building..."
-mkdir release
-cd release/
-cmake -D WITH_CUDA=OFF -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib*/modules -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+mkdir build
+cd build/
+cmake -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules/ -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
 make -j4
 sudo make install
 #echo 'export PYTHONPATH=$PYTHONPATH:'$PWD'/python_loader/' >> ~/.bashrc
