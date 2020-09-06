@@ -4,7 +4,8 @@ sudo sudo apt-get purge *libopencv*
 
 echo "** Install requirement"
 sudo apt-get update
-sudo apt-get install -y build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+sudo apt-get install -y build-essential 
+sudo apt-get install -y cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
 sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 sudo apt-get install -y python2.7-dev python3.6-dev python-dev python-numpy python3-numpy
 sudo apt-get install -y libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev
@@ -29,8 +30,8 @@ echo "** Download lateste opencv"
 #cd $folder
 git clone https://github.com/opencv/opencv.git
 git clone https://github.com/opencv/opencv_contrib.git
-unzip opencv*
-cd opencv-*
+unzip opencv
+cd opencv
 
 echo "** Apply patch"
 sed -i 's/include <Eigen\/Core>/include <eigen3\/Eigen\/Core>/g' modules/core/include/opencv2/core/private.hpp
