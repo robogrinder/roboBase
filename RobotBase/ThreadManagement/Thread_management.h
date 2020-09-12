@@ -15,23 +15,45 @@
 #include "../common.h"
 #include <semaphore.h>
 #include <condition_variable>
-
+/**
+ * class to manage the thread
+ */
 class ThreadManagement {
 public:
+    /**
+     * the constructor
+     */
     ThreadManagement();
+
     ~ThreadManagement();
-    void ImageProduce();
 
-    void Bigbuff();
+    /**
+     * image producer thread
+     */
+    [[noreturn]] void ImageProduce();
 
-    void AutoAim();
+    /**
+     * Bigbuff task thread
+     */
+    [[noreturn]] void Bigbuff();
 
+    /**
+     * autoAim task thread
+     */
+    [[noreturn]] void AutoAim();
+
+    /**
+     * communication task thread
+     */
     void Communication_thread();
 
 private:
     void pause(char x);
+
     void resume(char x);
+
     void stop();
+
     char name[20] = "/dev/ttyUSB0";
     const int SIZE_ = 30;
     boost::circular_buffer<cv::Mat> buffer;

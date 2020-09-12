@@ -54,9 +54,9 @@ bool armor::is_suitable_size() {
             && armor_width > (led_bars[0].rect.size.width + led_bars[1].rect.size.width) * 3) {
             float h_max = (led_bars[0].rect.size.height + led_bars[1].rect.size.height) / 2.0f;
 
-            // 两个灯条高度差不大
+            // just a little height difference of two bars
             if (fabs(led_bars[0].rect.center.y - led_bars[1].rect.center.y) < 1.0f * h_max) {
-                // 长宽比判断
+                // length-width ratio
                 if (h_max * 4.0f > rect.width && h_max < 1.1f * rect.width) {
                     return true;
                 }

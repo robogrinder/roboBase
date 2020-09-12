@@ -26,7 +26,7 @@ ThreadManagement::ThreadManagement() {
     }
 }
 
-void ThreadManagement::ImageProduce() {
+[[noreturn]] void ThreadManagement::ImageProduce() {
     cout << " ------  CAMERA PRODUCE TASK ON !!! ------ " << endl;
     while (1) {
         cv::Mat frame;
@@ -38,17 +38,16 @@ void ThreadManagement::ImageProduce() {
 
 }
 
-void ThreadManagement::AutoAim() {
+[[noreturn]] void ThreadManagement::AutoAim() {
 
 
     while (1) {
         //auto time0 = static_cast<double>(getTickCount());
 
-        while(!aim_ready)
-        {
+        while (!aim_ready) {
             printf("aim wait\n");
             std::unique_lock<std::mutex> lck_a(aim_mtx);
-            cond_aim. wait(lck_a);
+            cond_aim.wait(lck_a);
         }
         printf("aim work\n");
 
@@ -70,13 +69,12 @@ void ThreadManagement::AutoAim() {
 
 }
 
-void ThreadManagement::Bigbuff() {
+[[noreturn]] void ThreadManagement::Bigbuff() {
     BigbufDetector bigebufDetector(serialPort);
 
     while (1) {
 
-        while(!buff_ready)
-        {
+        while (!buff_ready) {
             printf("buff wait\n");
             //sleep(1);
             std::unique_lock<std::mutex> lck_b(buff_mtx);
@@ -92,7 +90,7 @@ void ThreadManagement::Bigbuff() {
         Mat frame = buffer.front();
         buffer.pop_front();
         buffer_lock.unlock();
-        bigebufDetector.feed_im(frame,otherParam);
+        bigebufDetector.feed_im(frame, otherParam);
         //bigebufDetector.getTest_result();
 
     }
@@ -100,10 +98,8 @@ void ThreadManagement::Bigbuff() {
 
 void ThreadManagement::Communication_thread() {
     int c;
-    while ((c = getchar()) != 'q')
-    {
-        switch(c)
-        {
+    while ((c = getchar()) != 'q') {
+        switch (c) {
             case 'a':
                 pause('b');
                 sleep(1);
@@ -118,39 +114,35 @@ void ThreadManagement::Communication_thread() {
     }
 
 }
- void ThreadManagement::pause(char x) {
-    if (x == 'a')
-    {
-        std::unique_lock <std::mutex> lck(aim_mtx);
+
+void ThreadManagement::pause(char x) {
+    if (x == 'a') {
+        std::unique_lock<std::mutex> lck(aim_mtx);
         aim_ready = false;
         cond_aim.notify_one();
-    }
-    else
-    {
-        std::unique_lock <std::mutex> lck(buff_mtx);
+    } else {
+        std::unique_lock<std::mutex> lck(buff_mtx);
         buff_ready = false;
         cond_buff.notify_one();
     }
 }
 
- void ThreadManagement::resume(char x) {
-     if (x == 'a')
-     {
-         std::unique_lock <std::mutex> lck(aim_mtx);
-         aim_ready = true;
-         cond_aim.notify_one();
-     }
-     else
-     {
-         std::unique_lock <std::mutex> lck(buff_mtx);
-         buff_ready = true;
-         cond_buff.notify_one();
-     }
+void ThreadManagement::resume(char x) {
+    if (x == 'a') {
+        std::unique_lock<std::mutex> lck(aim_mtx);
+        aim_ready = true;
+        cond_aim.notify_one();
+    } else {
+        std::unique_lock<std::mutex> lck(buff_mtx);
+        buff_ready = true;
+        cond_buff.notify_one();
+    }
 }
 
- void ThreadManagement::stop() {
+void ThreadManagement::stop() {
 
 }
+
 ThreadManagement::~ThreadManagement() {
     delete daheng;
 }

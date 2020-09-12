@@ -196,7 +196,8 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
 #endif
         Point2f point_tmp[4];
         Point2f point_2d[4];
-        // 左右灯条分类，本别提取装甲板四个外角点
+
+        // classify the left and right LED_bar, and abstrct four corner points
         RotatedRect R, L;
         if (target.led_bars[0].rect.center.x > target.led_bars[1].rect.center.x) {
             R = target.led_bars[0].rect;

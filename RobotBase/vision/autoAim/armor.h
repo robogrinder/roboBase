@@ -6,6 +6,7 @@
 #define ROBOTBASE_ARMOR_H
 
 #include <opencv2/opencv.hpp>
+
 /**
  * the LED_bar is the object of a LED bar in the armor plate.
  */
@@ -32,22 +33,43 @@ public:
 
 
 /**
- * This is the armor class, which is the object to for
+ * This is the armor class, which is the object of armor plate on the robot
+ *  which is formed by two LED_bar object.
  */
 class armor {
 public:
     armor();
-
+    /**
+     *  the constructor
+     * @param left  left LED bar
+     * @param right Right LED bar
+     */
     armor(const LED_bar &left, const LED_bar &right);
 
     void draw_rect(cv::Mat &img, cv::Point2f roi_offset_point) const;
 
     void draw_spot(cv::Mat &img, cv::Point2f roi_offset_point) const;
 
+    /**
+     * get the average intensity( the power of light in the image)
+     * @param img the image passed in
+     * @return the average value of image intensity
+     */
     int get_average_intensity(const cv::Mat &img);
 
-    void max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) ;
+    /**
+     * iterate the LEDs vector to match every possible lED_bars
+     * @param LEDs the vector of LED_bar
+     * @param i the index of LED_bar
+     * @param j the index of LED_bar
+     */
+    void max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j);
 
+    /**
+     * If the two led bar can form a armor or not.
+     * @return True: suitable to form a armor
+     *         False: not suitable to form a armor
+     **/
     bool is_suitable_size();
 
     LED_bar led_bars[2];
