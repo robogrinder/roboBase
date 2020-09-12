@@ -5,10 +5,17 @@
 
 #ifndef ROBOTBASE_CONTROL_H
 #define ROBOTBASE_CONTROL_H
+
+
+/**
+ * there are some macros using for showing the processed images and enable or disable the function.
+ */
 #define ROI_ENABLE 1
 #define SHOW_BINART 0
 #define SHOW_LIGHT_CONTOURS 1
-
+/**
+ * there are some macros to use for debugging the code.
+ */
 #define FAST_DISTANCE 0
 #define SHOW_FINAL_ARMOR 1
 #define SHOW_ROI 1

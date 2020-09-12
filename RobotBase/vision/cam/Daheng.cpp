@@ -39,28 +39,28 @@ int Daheng::init() {
     //std::cout << status << "success" << std::endl;
     if (status == GX_STATUS_SUCCESS) {
         int64_t nPayLoadSize = 0;
-        //获取图像buffer大小，下面动态申请内存
+        // acquire the image buffer size, and allocate the dynamic memory
+
         status = GXGetInt(hDevice, GX_INT_PAYLOAD_SIZE, &nPayLoadSize);
 
         if (status == GX_STATUS_SUCCESS && nPayLoadSize > 0) {
-            //定义GXGetImage的传入参数
+            // define the parameters pass into the GXGetImage()
 
-            //根据获取的图像buffer大小m_nPayLoadSize申请buffer
+
+            // depend on the buffer size of acquired image, m_nPayLoadSize, to allocate the buffer
             stFrameData.pImgBuf = malloc((size_t) nPayLoadSize);
             int64_t nWidth= 640;
             int64_t nHeight= 480;
-            status = status = GXSetInt(hDevice, GX_INT_WIDTH, nWidth);
+
+            // define the image's width and height
+            status = GXSetInt(hDevice, GX_INT_WIDTH, nWidth);
             status = GXSetInt(hDevice, GX_INT_HEIGHT, nHeight);
-            // 设置曝光值
+
+
+            // setting the exposure value
             status = GXSetFloat(hDevice, GX_FLOAT_EXPOSURE_TIME, 1500);
 
-            //设置采集模式连续采集
-            //            status = GXSetEnum(hDevice, GX_ENUM_ACQUISITION_MODE, GX_ACQ_MODE_CONTINUOUS);
-            //            status = GXSetInt(hDevice, GX_INT_ACQUISITION_SPEED_LEVEL, 1);
-            //status = GXSetEnum(hDevice, GX_ENUM_BALANCE_WHITE_AUTO, GX_BALANCE_WHITE_AUTO_CONTINUOUS);
-            //status = GXSetBool(hDevice,GX_ENUM_GAIN_AUTO, false);
-
-            //发送开始采集命令
+            //Send to acquisition command to camera
             status = GXSendCommand(hDevice, GX_COMMAND_ACQUISITION_START);
             return 1;
         }
@@ -75,8 +75,10 @@ void Daheng::getImage(Mat &img) {
     //usleep(1);
 
     if (stFrameData.nStatus == GX_FRAME_STATUS_SUCCESS) {
-        //图像获取成功
-        char *m_rgb_image = nullptr; //增加的内容
+        // successfully acquiring the image
+        char *m_rgb_image = nullptr;
+
+        // convert row data to Mat type
         m_rgb_image = new char[stFrameData.nWidth * stFrameData.nHeight * 3];
         src.create(stFrameData.nHeight, stFrameData.nWidth, CV_8UC3);
         DxRaw8toRGB24(stFrameData.pImgBuf,

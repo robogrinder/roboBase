@@ -6,11 +6,17 @@
 #define ROBOTBASE_ARMOR_H
 
 #include <opencv2/opencv.hpp>
-
+/**
+ * the LED_bar is the object of a LED bar in the armor plate.
+ */
 class LED_bar {
 public:
     LED_bar() : matched(false) {}
 
+    /**
+     *  This is the the constructor of Class
+     * @param R the info of LED bar
+     */
     LED_bar(const cv::RotatedRect &R) {
         rect.angle = R.angle;
         rect.center = R.center;
@@ -24,6 +30,10 @@ public:
     float match_factor;
 };
 
+
+/**
+ * This is the armor class, which is the object to for
+ */
 class armor {
 public:
     armor();

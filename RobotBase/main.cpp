@@ -2,6 +2,12 @@
 #include <thread>
 #include "ThreadManagement/Thread_management.h"
 //using namespace cv;
+/**
+ * This is the main funciton of code to start running the program
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main(int argc, char *argv[]) {
 
     auto *management = new ThreadManagement();
