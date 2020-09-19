@@ -11,3 +11,5 @@ install on ubuntu18.04 desktop platform:
 ```bash
 sh setUp_NOT_in_Nano.sh
 ```
+
+## Structure
