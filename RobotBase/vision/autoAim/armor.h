@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 
 /**
- * the LED_bar is the object of a LED bar in the armor plate.
+ * the LED_bar is the abstraction object of a LED bar in the armor plate.
  */
 class LED_bar {
 public:
@@ -51,7 +51,8 @@ public:
     void draw_spot(cv::Mat &img, cv::Point2f roi_offset_point) const;
 
     /**
-     * get the average intensity( the power of light in the image)
+     * get the average intensity
+     * Intensity in the Computer vision means how bright (mean pixel intensity) the image appears
      * @param img the image passed in
      * @return the average value of image intensity
      */

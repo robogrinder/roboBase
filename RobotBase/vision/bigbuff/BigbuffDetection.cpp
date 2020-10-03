@@ -84,7 +84,8 @@ bool BigbufDetector::contour_valid(std::vector<cv::Point> &contour) {
 
 
     float a_ratio = rect.size.area() / area;
-    ///test///std::cout<< "AREA RATIO:  "<<a_ratio<<std::endl;
+    ///test
+    //std::cout<< "AREA RATIO:  "<<a_ratio<<std::endl;
     /// TO DO: set threshold
     if (a_ratio < 1.9 || a_ratio > 2.25)
         return false;
