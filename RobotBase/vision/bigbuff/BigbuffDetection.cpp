@@ -47,11 +47,9 @@ void BigbufDetector::filte_image(cv::Mat &im,uint8_t color) {
     cv::Mat binary_brightness_img, binary_color_img;
     threshold(gray, binary_brightness_img, gray_th_, 255, cv::THRESH_BINARY);
     threshold(result_img, binary_color_img, color_th_, 255, cv::THRESH_BINARY);
-    ///test:
-    //SHOW_IM("binary_brightness_img", binary_brightness_img);
-    //SHOW_IM("binary_color_img", binary_color_img);
     im = binary_color_img & binary_brightness_img;
 
+    // make the image smooth, reduce the noise in the image
     cv::dilate(im, im, getStructuringElement(0, cv::Size(5, 5)));
     cv::dilate(im, im, cv::Mat());
     cv::erode(im, im, getStructuringElement(0, cv::Size(3, 3)));
