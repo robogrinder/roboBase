@@ -61,7 +61,8 @@ c. The average intensity in the area of two light bars on the armor plate is cal
 
 d. Optimal match for LED_bars. We define the statement: `factor = error_angle + 0.5 * angle` as the match coefficient. `angle` means the angle difference of two LED_bar if those are not parallel or `0`. The smaller the angle difference is, the more matchable the two LED_bars are. 
 The `LED_bar` class has three field variables: `matched`, if it is matched with other LED_bar, `match_index`, matched LED bar index number, and `match_factor` mentioned above.
-####Iterate every LED_bar to calculate the new `match_factor` and compare to the previous one, and If the new one is smaller, it means that this LED_bar has a batter match relationship. The previous match relationship will be dismissed and new match relationship will be settled down. The `final_armor_list` will store candidate armors after the end of this iteration.
+
+Iterate every LED_bar to calculate the new `match_factor` and compare to the previous one, and If the new one is smaller, it means that this LED_bar has a batter match relationship. The previous match relationship will be dismissed and new match relationship will be settled down. The `final_armor_list` will store candidate armors after the end of this iteration.
 
 e. A final armor plate is selected from the `final_armor_list` using the method closest to the image center point  defined in the macro`#define FAST_DISTANCE` in the `control.h`. And the judge the Armor type.
 
