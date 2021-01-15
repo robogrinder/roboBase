@@ -51,7 +51,7 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
     vector<Mat> BGR_channels;
     vector<LED_bar> LED_bars;
     bool found_flag = false;
-    Mat binary_brightness_img, binary_color_img, gray, debug_img, color_result_img;;
+    Mat bin_gray_img, bin_color_img, gray, debug_img, color_result_img;;
     debug_img = img.clone();
 
     cvtColor(roi_image, gray, COLOR_BGR2GRAY);
@@ -62,48 +62,46 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
     } else {
         subtract(BGR_channels[0], BGR_channels[2], color_result_img);
     }
-    threshold(gray, binary_brightness_img, gray_th_, 255, THRESH_BINARY);
-    threshold(color_result_img, binary_color_img, color_th_, 255, THRESH_BINARY);
+    threshold(gray, bin_gray_img, gray_th_, 255, THRESH_BINARY);
+    threshold(color_result_img, bin_color_img, color_th_, 255, THRESH_BINARY);
 
 #if SHOW_BINART
-    imshow("binary_brightness_img", binary_brightness_img);
-    imshow("binary_color_img", binary_color_img);
+    imshow("bin_gray_img", bin_gray_img);
+    imshow("bin_color_img", bin_color_img);
 #endif
-    vector<vector<Point> > contours_light;
-    vector<vector<Point> > contours_brightness;
-    findContours(binary_color_img, contours_light, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-    findContours(binary_brightness_img, contours_brightness, RETR_EXTERNAL, CHAIN_APPROX_NONE);
-    //printf("%zu\n",contours_light.size());
-    //printf("%zu\n",contours_brightness.size());
+    vector<vector<Point> > contours_color;
+    vector<vector<Point> > contours_gray;
+    findContours(bin_color_img, contours_color, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    findContours(bin_gray_img, contours_gray, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    //printf("%zu\n",contours_color.size());
+    //printf("%zu\n",contours_gray.size());
     /**
      * still need to test
      */
-    if (contours_brightness.size() < 2 || contours_light.size() < 2 || contours_brightness.size() > 10 ||
-        contours_light.size() > 10) {
+    if (contours_gray.size() < 2 || contours_color.size() < 2 || contours_gray.size() > 10 ||
+        contours_color.size() > 10) {
         //imshow("debug_img", debug_img);
         //waitKey(1);
         return found_flag;
     }
 
-    for (unsigned int i = 0; i < contours_brightness.size(); i++) {
-        double area = contourArea(contours_brightness[i]);
+    for (unsigned int i = 0; i < contours_gray.size(); i++) {
+        double area = contourArea(contours_gray[i]);
         if (area > 1e5) {
             continue;
         }
-        for (unsigned int j = 0; j < contours_light.size(); j++) {
-            if (pointPolygonTest(contours_light[j], contours_brightness[i][0], false) >= 0.0) {
-                double length = arcLength(contours_brightness[i], true); // 灯条周长
-                if (length > 20 && length < 4000) {
-                    RotatedRect RRect = fitEllipse(contours_brightness[i]);
-                    //RotatedRect RRect = minAreaRect(contours_brightness[i]);
+        for (unsigned int j = 0; j < contours_color.size(); j++) {
+            if (pointPolygonTest(contours_color[j], contours_gray[i][0], false) >= 0.0) {
+                double length = arcLength(contours_gray[i], true); // LED circumference
+                if (20 < length && length < 4000) {
+                    RotatedRect RRect = fitEllipse(contours_gray[i]);
                     auto light_aspect_ratio =
                             std::max(RRect.size.width, RRect.size.height) /
                             std::min(RRect.size.width, RRect.size.height);
-                    //auto light_aspect_ratio = RRect.size.height / RRect.size.width;
+                    // TODO: why not 180f?
                     if (RRect.angle > 90.0f)
                         RRect.angle = RRect.angle - 180.0f;
 
-                    //(fabs(RRect.angle)<30||(fabs(RRect.angle)<90 && fabs(RRect.angle)>70))&&
                     if (fabs(RRect.angle) < 30) {
 #if SHOW_LIGHT_CONTOURS
                         char temp[20];
@@ -117,9 +115,7 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
                                  rect_point[(i + 1) % 4] + offset_roi_point,
                                  Scalar(255, 0, 255), 1);
                         }
-#endif
 
-#if SHOW_LIGHT_CONTOURS
                         char temp1[20];
                         sprintf(temp1, "%0.2f", RRect.angle);
                         putText(debug_img, temp1, RRect.center + Point2f(0, -10) + offset_roi_point,
