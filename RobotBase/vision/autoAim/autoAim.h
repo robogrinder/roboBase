@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <roboBase/RobotBase/Robogrinder_SDK/serial_port.h>
 #include "../control.h"
-#include "armor.h"
+#include "Armor.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include "../../common.h"
@@ -17,6 +17,7 @@
 
 /**
  *  ArmorDetector class to process the data
+ *  ArmorDetector is constructed only once throughout entire process
  */
 class ArmorDetector {
 public:
@@ -24,8 +25,9 @@ public:
      * ArmorDetector constructor
      */
     ArmorDetector(){
-        printf(" armor detector initing!\n");
+        printf(" Armor detector initing!\n");
         t_start_ = cv::getTickCount();
+
         float x, y, z, small_width = 140, small_height = 60, big_width =230, big_height = 60;
         x = -small_width / 2;
         y = small_height / 2;
@@ -66,7 +68,7 @@ public:
 
     int armorTask(cv::Mat &img, OtherParam other_param, serial_port sp);
 
-    bool DetectArmor(cv::Mat &img, const cv::Rect& roi);
+    bool detectArmor(cv::Mat &img, const cv::Rect& roi);
 
 public:
     int color_th_ = 13;
@@ -94,9 +96,12 @@ private:
 private:
 
     double t_start_;
-
+    // bounding upright rectangle for most recent final armor found in previous frames
     cv::Rect last_target_;
+    // number of times consecutive previous frames that no final Armor detected in detectArmor()
+    // reseted to 0 when a valid armor is found
     int lost_count = 0;
+    // number of times detectArmor() is called
     int detect_count = 0;
 
     uint8_t color_{};

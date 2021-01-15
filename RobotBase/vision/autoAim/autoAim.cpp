@@ -45,7 +45,7 @@ cv::Rect ArmorDetector::GetRoi(const cv::Mat &img) {
     return rect_roi;
 }
 
-bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
+bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
     Mat roi_image = img(roi);
     Point2f offset_roi_point(roi.x, roi.y);
     vector<Mat> BGR_channels;
@@ -130,39 +130,39 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
             }
         }
     }
-    //==========================================possible armor=========================================
+    //==========================================possible Armor=========================================
+    /*
+     * try out all combinations of LED_bars. If two LEDs are almost parallel to each other
+     * then they are paired together by modifying the LED fields (matched, match_index, etc.)
+     */
     for (size_t i = 0; i < LED_bars.size(); i++) {
         for (size_t j = i + 1; j < LED_bars.size(); j++) {
-            armor temp_armor(LED_bars.at(i), LED_bars.at(j));
-            if (temp_armor.error_angle < 7.0f) {
-                if (temp_armor.is_suitable_size()) {
-                    //temp_armor.draw_rect(debug_img,offset_roi_point);
-                    if (temp_armor.get_average_intensity(gray) < 70) {
-
-                        temp_armor.max_match(LED_bars, i, j);
-
-                    }
-                }
+            Armor temp_armor(LED_bars.at(i), LED_bars.at(j));
+            if (temp_armor.error_angle < 7.0f && temp_armor.is_suitable_size() &&
+                temp_armor.get_average_intensity(gray) < 70) {
+                // modify fields to match LEDs at index i and j
+                temp_armor.max_match(LED_bars, i, j);
             }
         }
     }
     //====================================find final armors============================================
-    vector<armor> final_armor_list;
+    vector<Armor> final_armor_list;
 
     for (size_t i = 0; i < LED_bars.size(); i++) {
         if (LED_bars.at(i).matched) {
             LED_bars.at(LED_bars.at(i).match_index).matched = false; //clear another matching flag
-            armor arm_tmp(LED_bars.at(i), LED_bars.at(LED_bars.at(i).match_index));
+            Armor arm_tmp(LED_bars.at(i), LED_bars.at(LED_bars.at(i).match_index));
             //arm_tmp.draw_rect(debug_img, offset_roi_point);
             final_armor_list.push_back(arm_tmp);
         }
     }
-    //printf("final armor size %zu\n", final_armor_list.size());
-//
-//
+
+    // get the closest armor inside final_armor_list compared to center of roi
+    // result is stored in "target" variable
     float dist = 1e8;
 
-    armor target;
+    Armor target;
+    // TODO: what is roi?
     Point2f roi_center(roi.width / 2, roi.height / 2);
     float dx, dy;
     for (auto &i : final_armor_list) {
@@ -186,10 +186,12 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
 #if SHOW_ROI
     rectangle(debug_img, roi, Scalar(255, 0, 255), 1);
 #endif
+    // if final_armor_list is not empty (found a final candidate):
     if (found_flag) {
 #if SHOW_DRAW_SPOT
         target.draw_spot(debug_img, offset_roi_point);
 #endif
+
         Point2f point_tmp[4];
         Point2f point_2d[4];
 
@@ -202,6 +204,7 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
             R = target.led_bars[1].rect;
             L = target.led_bars[0].rect;
         }
+        // find armor rectangle that's between two LEDs and stores inside "point_2d"
         L.points(point_tmp);
         point_2d[0] = point_tmp[1];
         point_2d[3] = point_tmp[0];
@@ -211,6 +214,7 @@ bool ArmorDetector::DetectArmor(cv::Mat &img, const cv::Rect &roi) {
         vector<Point2f> points_roi_tmp;
         final_armor_2Dpoints.clear();
         for (int i = 0; i < 4; i++) {
+            // TODO: aren't points_roi_tmp and final_armor_2Dpoints the same?
             points_roi_tmp.push_back(point_2d[i] + offset_roi_point);
             final_armor_2Dpoints.push_back(point_2d[i] + offset_roi_point);
             circle(debug_img, final_armor_2Dpoints.at(i), 5, Scalar(255, 255, 255), -1);
@@ -256,7 +260,7 @@ int ArmorDetector::armorTask(cv::Mat &color, OtherParam other_param, serial_port
     Mat tvec;
     OFFSET_YAW = (OFFSET_INT_YAW - 1800);
     OFFSET_PITCH = (OFFSET_INT_PITCH - 1800);
-    if (DetectArmor(color, roi)) {
+    if (detectArmor(color, roi)) {
         printf("detected\n");
         if (is_small_) {
             solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,

@@ -2,13 +2,13 @@
 // Created by jsz on 12/28/19.
 //
 
-#include "armor.h"
+#include "Armor.h"
 
 using namespace cv;
 
-armor::armor() {}
+Armor::Armor() {}
 
-armor::armor(const LED_bar &left, const LED_bar &right) {
+Armor::Armor(const LED_bar &left, const LED_bar &right) {
     led_bars[0] = left;
     led_bars[1] = right;
     error_angle = fabs(left.rect.angle - right.rect.angle);
@@ -22,7 +22,7 @@ armor::armor(const LED_bar &left, const LED_bar &right) {
     rect.height *= 2.0 / 3;
 }
 
-int armor::get_average_intensity(const Mat &img) {
+int Armor::get_average_intensity(const Mat &img) {
     if (rect.width < 1 || rect.height < 1 || rect.x < 1 || rect.y < 1
         || rect.width + rect.x > img.cols || rect.height + rect.y > img.rows)
         return 255;
@@ -31,15 +31,15 @@ int armor::get_average_intensity(const Mat &img) {
     return average_intensity;
 }
 
-void armor::draw_rect(Mat &img, Point2f roi_offset_point) const {
+void Armor::draw_rect(Mat &img, Point2f roi_offset_point) const {
     rectangle(img, rect + Point_<int>(roi_offset_point), Scalar(255, 255, 255), 1);
 }
 
-void armor::draw_spot(Mat &img, Point2f roi_offset_point) const {
+void Armor::draw_spot(Mat &img, Point2f roi_offset_point) const {
     circle(img, center + Point_<int>(roi_offset_point), int(rect.height / 4), Scalar(0, 0, 255), -1);
 }
 
-bool armor::is_suitable_size() {
+bool Armor::is_suitable_size() {
     auto light_dis = std::sqrt((led_bars[0].rect.center.x - led_bars[1].rect.center.x) *
                                   (led_bars[0].rect.center.x - led_bars[1].rect.center.x) +
                                   (led_bars[0].rect.center.y - led_bars[1].rect.center.y) *
@@ -66,7 +66,8 @@ bool armor::is_suitable_size() {
     return false;
 }
 
-void armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
+void Armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
+    // TODO:
     RotatedRect R, L;
     if (LEDs[0].rect.center.x > LEDs[1].rect.center.x) {
         R = LEDs[0].rect;
@@ -75,7 +76,9 @@ void armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
         R = LEDs[1].rect;
         L = LEDs[0].rect;
     }
+    // TODO: put fabs to calculate absolute ?
     float angle = L.angle - R.angle;
+    // angle can be negative
     if (angle < 1e-3f) {
         angle = 0.0f;
     }

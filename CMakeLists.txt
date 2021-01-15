@@ -19,8 +19,8 @@ add_executable(RobotBase
         RobotBase/vision/bigbuff/BigbuffDetection.cpp
         RobotBase/vision/autoAim/autoAim.h
         RobotBase/vision/autoAim/autoAim.cpp
-        RobotBase/vision/autoAim/armor.cpp
-        RobotBase/vision/autoAim/armor.h
+        RobotBase/vision/autoAim/Armor.cpp
+        RobotBase/vision/autoAim/Armor.h
         RobotBase/vision/control.h
         RobotBase/record_video/recording_main.cpp
         RobotBase/record_video/recording_main.h

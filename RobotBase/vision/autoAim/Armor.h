@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 
 /**
- * the LED_bar is the abstraction object of a LED bar in the armor plate.
+ * the LED_bar is the abstraction object of a LED bar in the Armor plate.
  */
 class LED_bar {
 public:
@@ -33,18 +33,18 @@ public:
 
 
 /**
- * This is the armor class, which is the object of armor plate on the robot
+ * This is the Armor class, which is the object of Armor plate on the robot
  *  which is formed by two LED_bar object.
  */
-class armor {
+class Armor {
 public:
-    armor();
+    Armor();
     /**
      *  the constructor
      * @param left  left LED bar
      * @param right Right LED bar
      */
-    armor(const LED_bar &left, const LED_bar &right);
+    Armor(const LED_bar &left, const LED_bar &right);
 
     void draw_rect(cv::Mat &img, cv::Point2f roi_offset_point) const;
 
@@ -67,9 +67,9 @@ public:
     void max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j);
 
     /**
-     * If the two led bar can form a armor or not.
-     * @return True: suitable to form a armor
-     *         False: not suitable to form a armor
+     * If the two led bar can form a Armor or not.
+     * @return True: suitable to form a Armor
+     *         False: not suitable to form a Armor
      **/
     bool is_suitable_size();
 
