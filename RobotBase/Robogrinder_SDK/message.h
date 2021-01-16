@@ -6,6 +6,7 @@
 #define SERIAL_PORT_MESSAGE_H
 
 #include <stdint.h>
+// TODO: remove paddings
 struct serial_gimbal_data
 {
     uint8_t rawData[20];

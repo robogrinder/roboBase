@@ -8,12 +8,18 @@
 using namespace cv;
 using namespace std;
 
-//double calc_distance(Point2f p1, Point2f p2) {
-//    return pow(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2), 0.5);
-//}
 
+/**
+ * If the ArmorDetector found a armor in previous 15 frames:
+ *      <br>then roi will be a slightly bigger rectangle based on most recent roi
+ * Else:
+ *      <br>then roi will be entire picture
+ * @param img image to look for
+ * @return region of interst
+ */
 cv::Rect ArmorDetector::GetRoi(const cv::Mat &img) {
     Size img_size = img.size();
+    // TODO: why use rect_tmp when it's the same as last_target? Or using &rect_tmp is better?
     Rect rect_tmp = last_target_;
     Rect rect_roi;
     if (rect_tmp.x == 0 || rect_tmp.y == 0
@@ -23,6 +29,7 @@ cv::Rect ArmorDetector::GetRoi(const cv::Mat &img) {
         rect_roi = Rect(0, 0, img_size.width, img_size.height);
         return rect_roi;
     } else {
+        // TODO: previous if already means lost_count < 15, so these if/else are unnecessary?
         float scale = 2;
         if (lost_count <= 35)
             scale = 2.3;
@@ -45,6 +52,12 @@ cv::Rect ArmorDetector::GetRoi(const cv::Mat &img) {
     return rect_roi;
 }
 
+/**
+ * try to find armor within roi inside img.
+ * @param img original image
+ * @param roi only search this region inside img
+ * @return true if a valid armor is detected; false otherwise
+ */
 bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
     Mat roi_image = img(roi);
     Point2f offset_roi_point(roi.x, roi.y);
@@ -229,54 +242,60 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
         last_target_ = boundingRect(points_roi_tmp);
 #if SHOW_LAST_TARGET
         rectangle(debug_img, last_target_, Scalar(255, 255, 255), 1);
-
 #endif
         lost_count = 0;
-        //target_3d.x = last_target_.x + (last_target_.width) / 2;
-        //target_3d.y = last_target_.y + (last_target_.height) / 2;
     } else {
         lost_count++;
     }
     detect_count++;
-
     imshow("debug_img", debug_img);
     waitKey(1);
     return found_flag;
 }
 
-int ArmorDetector::armorTask(cv::Mat &color, OtherParam other_param, serial_port sp) {
+/**
+ * starting point for ArmorDetector; called by the thread management
+ * @param color_img image captured by camera
+ * @param other_param
+ * @param sp
+ * @return
+ */
+int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_port sp) {
+    // TODO: what is level_ and where is it used?
     color_ = other_param.color;
     mode_ = other_param.mode;
     level_ = other_param.level;
 
 #if ROI_ENABLE
-    Rect roi = GetRoi(color);
+    Rect roi = GetRoi(color_img);
 #else
-    Size img_size = color.size();
+    Size img_size = color_img.size();
     Rect roi = Rect(0, 0, img_size.width, img_size.height);
 #endif
     Point3f target_3d = {0, 0, 0};
-    Mat rvec;
+    Mat rvec; // not used
     Mat tvec;
+    // TODO: why are they initialized, but then calculated again here? Use zero instead?
     OFFSET_YAW = (OFFSET_INT_YAW - 1800);
     OFFSET_PITCH = (OFFSET_INT_PITCH - 1800);
-    if (detectArmor(color, roi)) {
+    if (detectArmor(color_img, roi)) {
         printf("detected\n");
         if (is_small_) {
-            solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
-                     SOLVEPNP_ITERATIVE);
+            solvePnP(small_real_armor_points, final_armor_2Dpoints, cameraMatrix,
+                     distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
         } else {
-            solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix, distCoeffs, rvec, tvec, false,
-                     SOLVEPNP_ITERATIVE);
+            solvePnP(big_real_armor_points, final_armor_2Dpoints, cameraMatrix,
+                     distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
         }
 
         target_3d = cv::Point3f(tvec);
         printf("x:%f y:%f z:%f\n", target_3d.x, target_3d.y, target_3d.z);
 
-
+        // TODO: change this -80 offset to a variable based on physical characteristics of the robot?
+        // height needs to - 80 because difference between camera and turret
         int pitch = int((atan2(target_3d.y - 80, target_3d.z) + (float) (OFFSET_PITCH * CV_PI / 1800)) * 0.6 * 10000);
-        //int pitch = 15000;
         int yaw = int((-atan2(target_3d.x, target_3d.z) + (float) (OFFSET_YAW * CV_PI / 1800)) * 0.4 * 10000);
+/*
         //int yaw = -15000;
         //printf("yaw: %d, pitch: %d\n", yaw, pitch);
         //pitch_vector.push_back((float)pitch/10000);
@@ -295,7 +314,7 @@ int ArmorDetector::armorTask(cv::Mat &color, OtherParam other_param, serial_port
 //        total = (float)(total / (yaw_array_size));
 //        printf("\npredit speed: %f\n", total);
 //        yaw += total * 1.4f;
-
+*/
         struct serial_gimbal_data data;
         data.size = 6;
         data.rawData[0] = data.head;
@@ -319,7 +338,6 @@ int ArmorDetector::armorTask(cv::Mat &color, OtherParam other_param, serial_port
         data.rawData[3] = pitch >> 8;
         data.rawData[4] = yaw;
         data.rawData[5] = yaw >> 8;
-
 
         sp.send_data(data);
     }

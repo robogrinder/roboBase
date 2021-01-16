@@ -66,7 +66,7 @@ public:
     }
     ~ArmorDetector() = default;
 
-    int armorTask(cv::Mat &img, OtherParam other_param, serial_port sp);
+    int armorTask(cv::Mat &color_img, OtherParam other_param, serial_port sp);
 
     bool detectArmor(cv::Mat &img, const cv::Rect& roi);
 

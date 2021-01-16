@@ -27,6 +27,7 @@ int Armor::get_average_intensity(const Mat &img) {
         || rect.width + rect.x > img.cols || rect.height + rect.y > img.rows)
         return 255;
     Mat roi = img(Range(rect.y, rect.y + rect.height), Range(rect.x, rect.x + rect.width));
+    // TODO: what is mean(roi).val[0]
     average_intensity = static_cast<int>(mean(roi).val[0]);
     return average_intensity;
 }
