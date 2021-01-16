@@ -98,13 +98,19 @@ ThreadManagement::ThreadManagement() {
 
 void ThreadManagement::Communication_thread() {
     int c;
+    // TODO: change getchar()
+    // getchar():
+    // right now: taking input from keyboard
+    // should be: taking input from development board/ c board
     while ((c = getchar()) != 'q') {
         switch (c) {
+            // auto aim mode
             case 'a':
                 pause('b');
                 sleep(1);
                 resume('a');
                 break;
+            // big buff mode
             case 'b':
                 pause('a');
                 sleep(1);

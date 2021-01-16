@@ -20,6 +20,7 @@ using namespace std;
 cv::Rect ArmorDetector::GetRoi(const cv::Mat &img) {
     Size img_size = img.size();
     // TODO: why use rect_tmp when it's the same as last_target? Or using &rect_tmp is better?
+    // we can remove this
     Rect rect_tmp = last_target_;
     Rect rect_roi;
     if (rect_tmp.x == 0 || rect_tmp.y == 0
@@ -112,6 +113,7 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
                             std::max(RRect.size.width, RRect.size.height) /
                             std::min(RRect.size.width, RRect.size.height);
                     // TODO: why not 180f?
+                    // 0 < angle < 90
                     if (RRect.angle > 90.0f)
                         RRect.angle = RRect.angle - 180.0f;
 
@@ -175,7 +177,6 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
     float dist = 1e8;
 
     Armor target;
-    // TODO: what is roi?
     Point2f roi_center(roi.width / 2, roi.height / 2);
     float dx, dy;
     for (auto &i : final_armor_list) {
@@ -228,6 +229,7 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
         final_armor_2Dpoints.clear();
         for (int i = 0; i < 4; i++) {
             // TODO: aren't points_roi_tmp and final_armor_2Dpoints the same?
+            // safety reason
             points_roi_tmp.push_back(point_2d[i] + offset_roi_point);
             final_armor_2Dpoints.push_back(point_2d[i] + offset_roi_point);
             circle(debug_img, final_armor_2Dpoints.at(i), 5, Scalar(255, 255, 255), -1);
@@ -276,8 +278,9 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
     Mat rvec; // not used
     Mat tvec;
     // TODO: why are they initialized, but then calculated again here? Use zero instead?
-    OFFSET_YAW = (OFFSET_INT_YAW - 1800);
-    OFFSET_PITCH = (OFFSET_INT_PITCH - 1800);
+    // use slide bar
+    OFFSET_YAW = (OFFSET_INT_YAW - 1800); // 0
+    OFFSET_PITCH = (OFFSET_INT_PITCH - 1800); // 0
     if (detectArmor(color_img, roi)) {
         printf("detected\n");
         if (is_small_) {
@@ -320,6 +323,7 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
         data.rawData[0] = data.head;
         data.rawData[1] = data.id;
         data.rawData[2] = pitch;
+        // pitch int should be int16_t
         data.rawData[3] = pitch >> 8;
         data.rawData[4] = yaw;
         data.rawData[5] = yaw >> 8;
