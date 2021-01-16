@@ -2,7 +2,7 @@
 // Created by jsz on 12/27/19.
 //
 
-
+// TODO: use json file (rapidjson library) instead of macros
 #ifndef ROBOTBASE_CONTROL_H
 #define ROBOTBASE_CONTROL_H
 

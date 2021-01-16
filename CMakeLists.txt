@@ -32,7 +32,7 @@ add_executable(RobotBase
         RobotBase/vision/bigbuff/pred_algrsm.h
         RobotBase/common.h
         RobotBase/ThreadManagement/Thread_management.cpp
-        RobotBase/ThreadManagement/Thread_management.h)
+        RobotBase/ThreadManagement/Thread_management.h RobotBase/vision/autoAim/auto_aim_test/AutoAimTester.cpp)
 
 # The following part are linking the library into the binary file
 link_directories(../)

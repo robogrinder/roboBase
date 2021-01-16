@@ -58,6 +58,7 @@ int Daheng::init() {
 
 
             // setting the exposure value
+            // TODO: change exposure
             status = GXSetFloat(hDevice, GX_FLOAT_EXPOSURE_TIME, 1500);
 
             //Send to acquisition command to camera

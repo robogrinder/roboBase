@@ -28,6 +28,7 @@ int Armor::get_average_intensity(const Mat &img) {
         return 255;
     Mat roi = img(Range(rect.y, rect.y + rect.height), Range(rect.x, rect.x + rect.width));
     // TODO: what is mean(roi).val[0]
+    // how bright the light is in roi
     average_intensity = static_cast<int>(mean(roi).val[0]);
     return average_intensity;
 }
@@ -68,7 +69,8 @@ bool Armor::is_suitable_size() {
 }
 
 void Armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
-    // TODO:
+    // TODO: R and L
+    // can be deleted
     RotatedRect R, L;
     if (LEDs[0].rect.center.x > LEDs[1].rect.center.x) {
         R = LEDs[0].rect;
@@ -78,7 +80,8 @@ void Armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
         L = LEDs[0].rect;
     }
     // TODO: put fabs to calculate absolute ?
-    float angle = L.angle - R.angle;
+    // can change
+    float angle = L.angle - R.angle; // angle diff [0] [1] LED
     // angle can be negative
     if (angle < 1e-3f) {
         angle = 0.0f;
