@@ -2,13 +2,13 @@
 // Created by jsz on 12/28/19.
 //
 
-#ifndef ROBOTBASE_ARMOR_H
-#define ROBOTBASE_ARMOR_H
+#ifndef ROBOTBASE_ARMORFILTER_H
+#define ROBOTBASE_ARMORFILTER_H
 
 #include <opencv2/opencv.hpp>
 
 /**
- * the LED_bar is the abstraction object of a LED bar in the Armor plate.
+ * the LED_bar is the abstraction object of a LED bar in the ArmorFilter plate.
  */
 class LED_bar {
 public:
@@ -33,18 +33,18 @@ public:
 
 
 /**
- * This is the Armor class, which is the object of Armor plate on the robot
+ * This is the ArmorFilter class, which is the object of ArmorFilter plate on the robot
  *  which is formed by two LED_bar object.
  */
-class Armor {
+class ArmorFilter {
 public:
-    Armor();
+    ArmorFilter();
     /**
      *  the constructor
      * @param left  left LED bar
      * @param right Right LED bar
      */
-    Armor(const LED_bar &left, const LED_bar &right);
+    ArmorFilter(const LED_bar &left, const LED_bar &right);
 
     void draw_rect(cv::Mat &img, cv::Point2f roi_offset_point) const;
 
@@ -67,9 +67,9 @@ public:
     void max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j);
 
     /**
-     * If the two led bar can form a Armor or not.
-     * @return True: suitable to form a Armor
-     *         False: not suitable to form a Armor
+     * If the two led bar can form a ArmorFilter or not.
+     * @return True: suitable to form a ArmorFilter
+     *         False: not suitable to form a ArmorFilter
      **/
     bool is_suitable_size();
 
@@ -81,4 +81,4 @@ public:
 
 };
 
-#endif //ROBOTBASE_ARMOR_H
+#endif //ROBOTBASE_ARMORFILTER_H

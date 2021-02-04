@@ -19,8 +19,8 @@ add_executable(RobotBase
         RobotBase/vision/bigbuff/BigbuffDetection.cpp
         RobotBase/vision/autoAim/autoAim.h
         RobotBase/vision/autoAim/autoAim.cpp
-        RobotBase/vision/autoAim/Armor.cpp
-        RobotBase/vision/autoAim/Armor.h
+        RobotBase/vision/autoAim/ArmorFilter.cpp
+        RobotBase/vision/autoAim/ArmorFilter.h
         RobotBase/vision/control.h
         RobotBase/record_video/recording_main.cpp
         RobotBase/record_video/recording_main.h
@@ -32,7 +32,7 @@ add_executable(RobotBase
         RobotBase/vision/bigbuff/pred_algrsm.h
         RobotBase/common.h
         RobotBase/ThreadManagement/Thread_management.cpp
-        RobotBase/ThreadManagement/Thread_management.h RobotBase/vision/autoAim/auto_aim_test/AutoAimTester.cpp)
+        RobotBase/ThreadManagement/Thread_management.h)
 
 # The following part are linking the library into the binary file
 link_directories(../)
@@ -60,3 +60,8 @@ else ()
     SET(CMAKE_BUILD_TYPE Debug)
     message(STATUS "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} is defined")
 endif ()
+
+
+
+# unit testing
+add_subdirectory(RobotBase/vision/auto_aim_test)

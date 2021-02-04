@@ -9,6 +9,15 @@ using namespace cv;
 using namespace std;
 
 
+static void drawRect(cv::RotatedRect rectangle, cv::Mat &src) {
+    //cv::Point2f *vertices = new cv::Point2f[4];
+    cv::Point2f vertices[4];
+    rectangle.points(vertices);
+    for (int j = 0; j < 4; j++)
+        cv::line(src, vertices[j], vertices[(j + 1) % 4], cv::Scalar(0, 0, 255), 4);
+
+}
+
 /**
  * If the ArmorDetector found a armor in previous 15 frames:
  *      <br>then roi will be a slightly bigger rectangle based on most recent roi
@@ -92,10 +101,9 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
     /**
      * still need to test
      */
-    if (contours_gray.size() < 2 || contours_color.size() < 2 || contours_gray.size() > 10 ||
-        contours_color.size() > 10) {
-        //imshow("debug_img", debug_img);
-        //waitKey(1);
+    if (contours_gray.size() < 2 || contours_color.size() < 2 /*|| contours_gray.size() > 10 ||
+        contours_color.size() > 10 */) {
+        // TODO why there's contours.size() > 10?
         return found_flag;
     }
 
@@ -145,14 +153,14 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
             }
         }
     }
-    //==========================================possible Armor=========================================
+    //==========================================possible ArmorFilter=========================================
     /*
      * try out all combinations of LED_bars. If two LEDs are almost parallel to each other
      * then they are paired together by modifying the LED fields (matched, match_index, etc.)
      */
     for (size_t i = 0; i < LED_bars.size(); i++) {
         for (size_t j = i + 1; j < LED_bars.size(); j++) {
-            Armor temp_armor(LED_bars.at(i), LED_bars.at(j));
+            ArmorFilter temp_armor(LED_bars.at(i), LED_bars.at(j));
             if (temp_armor.error_angle < 7.0f && temp_armor.is_suitable_size() &&
                 temp_armor.get_average_intensity(gray) < 70) {
                 // modify fields to match LEDs at index i and j
@@ -161,14 +169,18 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
         }
     }
     //====================================find final armors============================================
-    vector<Armor> final_armor_list;
+    vector<ArmorFilter> final_armor_list;
 
     for (size_t i = 0; i < LED_bars.size(); i++) {
         if (LED_bars.at(i).matched) {
             LED_bars.at(LED_bars.at(i).match_index).matched = false; //clear another matching flag
-            Armor arm_tmp(LED_bars.at(i), LED_bars.at(LED_bars.at(i).match_index));
+            ArmorFilter arm_tmp(LED_bars.at(i), LED_bars.at(LED_bars.at(i).match_index));
             //arm_tmp.draw_rect(debug_img, offset_roi_point);
             final_armor_list.push_back(arm_tmp);
+#if SHOW_FINAL_ARMOR
+            //LED_bars.at(i).rect
+            drawRect(LED_bars[i].rect, img);
+#endif
         }
     }
 
@@ -176,7 +188,7 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
     // result is stored in "target" variable
     float dist = 1e8;
 
-    Armor target;
+    ArmorFilter target;
     Point2f roi_center(roi.width / 2, roi.height / 2);
     float dx, dy;
     for (auto &i : final_armor_list) {
@@ -191,10 +203,7 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
             target = i;
             dist = dx + dy;
         }
-#if SHOW_FINAL_ARMOR
-        i.draw_rect(debug_img, offset_roi_point);
 
-#endif
         found_flag = true;
     }
 #if SHOW_ROI
@@ -205,7 +214,13 @@ bool ArmorDetector::detectArmor(cv::Mat &img, const cv::Rect &roi) {
 #if SHOW_DRAW_SPOT
         target.draw_spot(debug_img, offset_roi_point);
 #endif
-
+#if SHOW_FINAL_ARMOR
+        /*
+        for (int i = 0; i < 4; i++){
+            drawRect()
+        }
+         */
+#endif
         Point2f point_tmp[4];
         Point2f point_2d[4];
 
@@ -347,5 +362,6 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
     }
 
 }
+
 
 

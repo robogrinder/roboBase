@@ -11,8 +11,9 @@
  * there are some macros using for showing the processed images and enable or disable the function.
  */
 #define ROI_ENABLE 1
-#define SHOW_BINART 0
-#define SHOW_LIGHT_CONTOURS 1
+#define SHOW_BINART 1
+#define SHOW_LIGHT_CONTOURS 0
+#define SHOW_FINAL_ARMOR 1
 /**
  * there are some macros to use for debugging the code.
  */

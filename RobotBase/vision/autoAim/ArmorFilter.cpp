@@ -2,13 +2,13 @@
 // Created by jsz on 12/28/19.
 //
 
-#include "Armor.h"
+#include "ArmorFilter.h"
 
 using namespace cv;
 
-Armor::Armor() {}
+ArmorFilter::ArmorFilter() {}
 
-Armor::Armor(const LED_bar &left, const LED_bar &right) {
+ArmorFilter::ArmorFilter(const LED_bar &left, const LED_bar &right) {
     led_bars[0] = left;
     led_bars[1] = right;
     error_angle = fabs(left.rect.angle - right.rect.angle);
@@ -22,7 +22,7 @@ Armor::Armor(const LED_bar &left, const LED_bar &right) {
     rect.height *= 2.0 / 3;
 }
 
-int Armor::get_average_intensity(const Mat &img) {
+int ArmorFilter::get_average_intensity(const Mat &img) {
     if (rect.width < 1 || rect.height < 1 || rect.x < 1 || rect.y < 1
         || rect.width + rect.x > img.cols || rect.height + rect.y > img.rows)
         return 255;
@@ -33,15 +33,15 @@ int Armor::get_average_intensity(const Mat &img) {
     return average_intensity;
 }
 
-void Armor::draw_rect(Mat &img, Point2f roi_offset_point) const {
+void ArmorFilter::draw_rect(Mat &img, Point2f roi_offset_point) const {
     rectangle(img, rect + Point_<int>(roi_offset_point), Scalar(255, 255, 255), 1);
 }
 
-void Armor::draw_spot(Mat &img, Point2f roi_offset_point) const {
+void ArmorFilter::draw_spot(Mat &img, Point2f roi_offset_point) const {
     circle(img, center + Point_<int>(roi_offset_point), int(rect.height / 4), Scalar(0, 0, 255), -1);
 }
 
-bool Armor::is_suitable_size() {
+bool ArmorFilter::is_suitable_size() {
     auto light_dis = std::sqrt((led_bars[0].rect.center.x - led_bars[1].rect.center.x) *
                                   (led_bars[0].rect.center.x - led_bars[1].rect.center.x) +
                                   (led_bars[0].rect.center.y - led_bars[1].rect.center.y) *
@@ -68,7 +68,7 @@ bool Armor::is_suitable_size() {
     return false;
 }
 
-void Armor::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
+void ArmorFilter::max_match(std::vector<LED_bar> &LEDs, size_t i, size_t j) {
     // TODO: R and L
     // can be deleted
     RotatedRect R, L;

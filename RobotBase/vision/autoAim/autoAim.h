@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <roboBase/RobotBase/Robogrinder_SDK/serial_port.h>
 #include "../control.h"
-#include "Armor.h"
+#include "ArmorFilter.h"
 #include "rapidjson/document.h"
 #include "rapidjson/filereadstream.h"
 #include "../../common.h"
@@ -25,7 +25,7 @@ public:
      * ArmorDetector constructor
      */
     ArmorDetector(){
-        printf(" Armor detector initing!\n");
+        printf(" ArmorFilter detector initing!\n");
         t_start_ = cv::getTickCount();
 
         float x, y, z, small_width = 140, small_height = 60, big_width =230, big_height = 60;
@@ -70,7 +70,6 @@ public:
 
     bool detectArmor(cv::Mat &img, const cv::Rect& roi);
 
-public:
     int color_th_ = 13;
     int gray_th_ = 24;
     int OFFSET_INT_YAW = 1800;
@@ -78,6 +77,12 @@ public:
 
     int OFFSET_YAW;
     int OFFSET_PITCH;
+    // get result of running armorTask()
+    std::vector<cv::Point2f> &getFinalArmor() {
+        return this->final_armor_2Dpoints;
+    }
+
+
 private:
     bool makeRectSafe(cv::Rect &rect, const cv::Size &size) {
         if (rect.x < 0)
@@ -93,12 +98,10 @@ private:
 
     cv::Rect GetRoi(const cv::Mat &img);
 
-private:
-
     double t_start_;
     // bounding upright rectangle for most recent final armor found in previous frames
     cv::Rect last_target_;
-    // number of times consecutive previous frames that no final Armor detected in detectArmor()
+    // number of times consecutive previous frames that no final ArmorFilter detected in detectArmor()
     // reseted to 0 when a valid armor is found
     int lost_count = 0;
     // number of times detectArmor() is called
@@ -113,9 +116,7 @@ private:
     0.0000000000000000, 0.0000000000000000, 1.0000000000000000);;
     cv::Mat distCoeffs = (cv::Mat_<double>(1, 5)
             << -0.2126367859619807, 0.2282910064864265, 0.0020583387355406, 0.0006136511397638, -0.7559987171745171);;
-
-private:
-    // 判断大小装甲板类型相关参数
+    // date that determines armor types
     std::list<bool> history_;
     int filter_size_ = 5;
     bool is_small_{};
