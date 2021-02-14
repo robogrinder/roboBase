@@ -19,7 +19,7 @@ using namespace cv;
 #include "ArmorFilter.h"
 int main() {
 
-    String videoPath = "../../../../RobotBase/vision/auto_aim_test/infantry1.mp4";
+    String videoPath = "../../../../RobotBase/vision/auto_aim_test/vid1.mp4";
     VideoCapture capture(videoPath);
     Mat frame;
     if (!capture.isOpened()) {
@@ -27,7 +27,8 @@ int main() {
         return -1;
     }
     // capture.set(CAP_PROP_POS_FRAMES, START_FRAME);
-
+    int totalFrames = 0;
+    int foundCount = 0;
     ArmorDetector detector;
     for(int i = 0;; i++) {
         capture.read(frame);
@@ -41,17 +42,19 @@ int main() {
         imshow("test", frame);
 
         if (finalArmor.size() > 0) {
-            cout << "image found\n\n\n!";
-            return 1;
-            waitKey(2000);
+            // cout << "image found\n\n\n!";
+            foundCount++;
+            //waitKey(200);
         }
         else {
-            cout << "not found\n";
-            waitKey(200);
+            // cout << "not found\n";
+            //waitKey(200);
         }
+        totalFrames++;
 
     }
-
+    cout << "totalFrames found: " << foundCount << ", totalFrames frames: " << totalFrames << endl;
+    cout << "percentage of frames found: " << ((foundCount + 0.0) / totalFrames);
     return 0;
 }
 

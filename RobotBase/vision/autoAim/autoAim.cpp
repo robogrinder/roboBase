@@ -296,6 +296,11 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
     // use slide bar
     OFFSET_YAW = (OFFSET_INT_YAW - 1800); // 0
     OFFSET_PITCH = (OFFSET_INT_PITCH - 1800); // 0
+
+    // default pitch and yaw if no armor is detected
+    int pitch = 0;
+    int yaw = 0;
+    uint8_t shoot = 0;
     if (detectArmor(color_img, roi)) {
         printf("detected\n");
         if (is_small_) {
@@ -311,55 +316,59 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
 
         // TODO: change this -80 offset to a variable based on physical characteristics of the robot?
         // height needs to - 80 because difference between camera and turret
-        int pitch = int((atan2(target_3d.y - 80, target_3d.z) + (float) (OFFSET_PITCH * CV_PI / 1800)) * 0.6 * 10000);
-        int yaw = int((-atan2(target_3d.x, target_3d.z) + (float) (OFFSET_YAW * CV_PI / 1800)) * 0.4 * 10000);
-/*
-        //int yaw = -15000;
-        //printf("yaw: %d, pitch: %d\n", yaw, pitch);
-        //pitch_vector.push_back((float)pitch/10000);
-//        yaw_array[yaw_array_count] = yaw;
-//        yaw_array_count++;
-//        yaw_array_size++;
-//        if (yaw_array_count > 2)
-//            yaw_array_count = 0;
-//        if (yaw_array_size > 3)
-//            yaw_array_size = 3;
-//        float total = 0;
-//        for (int i = 0; i < yaw_array_size; i++) {
-//            total += yaw_array[i];
-//            //printf("%d ", yaw_array[i]);
-//        }
-//        total = (float)(total / (yaw_array_size));
-//        printf("\npredit speed: %f\n", total);
-//        yaw += total * 1.4f;
+        pitch = int((atan2(target_3d.y - 80, target_3d.z) + (float) (OFFSET_PITCH * CV_PI / 1800)) * 0.6 * 10000);
+        yaw = int((-atan2(target_3d.x, target_3d.z) + (float) (OFFSET_YAW * CV_PI / 1800)) * 0.4 * 10000);
+        shoot = 0xff;
+        /*
+        int yaw = -15000;
+        printf("yaw: %d, pitch: %d\n", yaw, pitch);
+        pitch_vector.push_back((float)pitch/10000);
+        yaw_array[yaw_array_count] = yaw;
+        yaw_array_count++;
+        yaw_array_size++;
+        if (yaw_array_count > 2)
+            yaw_array_count = 0;
+        if (yaw_array_size > 3)
+            yaw_array_size = 3;
+        float total = 0;
+        for (int i = 0; i < yaw_array_size; i++) {
+            total += yaw_array[i];
+            //printf("%d ", yaw_array[i]);
+        }
+        total = (float)(total / (yaw_array_size));
+        printf("\npredit speed: %f\n", total);
+        yaw += total * 1.4f;
 */
-        struct serial_gimbal_data data;
-        data.size = 6;
-        data.rawData[0] = data.head;
-        data.rawData[1] = data.id;
-        data.rawData[2] = pitch;
-        // pitch int should be int16_t
-        data.rawData[3] = pitch >> 8;
-        data.rawData[4] = yaw;
-        data.rawData[5] = yaw >> 8;
 
-        sp.send_data(data);
-    } else {
-        //printf("not detected\n");
-        int pitch = 0;
-        //int pitch = 15000;
-        int yaw = 0;
-        struct serial_gimbal_data data;
-        data.size = 6;
-        data.rawData[0] = data.head;
-        data.rawData[1] = data.id;
-        data.rawData[2] = pitch;
-        data.rawData[3] = pitch >> 8;
-        data.rawData[4] = yaw;
-        data.rawData[5] = yaw >> 8;
-
-        sp.send_data(data);
     }
+    struct serial_gimbal_data data;
+    data.size = 9;
+    data.rawData[0] = data.head;
+    data.rawData[1] = data.id;
+    data.rawData[2] = yaw;
+    data.rawData[3] = yaw >> 8;
+    data.rawData[4] = pitch;
+    data.rawData[5] = pitch >> 8;
+
+    // TODO: frictiwheel value?
+    data.rawData[6] = 1600;
+    data.rawData[7] = shoot;
+
+    // don't count check checkSum itself
+    uint8_t checkSum = 0;
+    uint8_t temp;
+    for (int i = 0; i < data.size - 1; i++) {
+        // count number of 1's
+        // TODO: use Hamming weight implementation in the future
+        temp = data.rawData[i];
+        for (int j = 0; j < 8; j++) {
+            checkSum += temp >> (7 - j) & 1;
+        }
+    }
+    data.rawData[8] = checkSum;
+
+
+    sp.send_data(data);
 
 }
 
