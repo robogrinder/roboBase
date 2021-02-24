@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "serial_port.h"
+#include "message.h"
 
 serial_port::serial_port() = default;
 
@@ -71,7 +72,13 @@ void serial_port::restart_serial_port() {
 
 }
 
-void serial_port::recive_data(struct serial_recive_data &receiveData) {
+/**
+ * uses receiveData to receive data and then write the output data
+ * in inputData variable
+ * @param receiveData incoming data serial port object
+ * @param inputData will contain data read from the serial port
+ */
+void serial_port::receive_data(struct serial_recive_data &receiveData, struct Input_data &inputData) {
     tcflush(fd, TCIFLUSH);
     uint8_t buffer[10];
     int re = read(fd,receiveData.rawData, receiveData.size);
@@ -79,6 +86,61 @@ void serial_port::recive_data(struct serial_recive_data &receiveData) {
         std::cout<< "!!! receive data failure !!!"<< std::endl;
     }
     // decode the data received //
+    mode temp_mode;
+    switch (receiveData.rawData[1] ) {
+        case 0xff:
+            temp_mode = AUTOFIRE;
+            break;
+        case 0x0:
+            temp_mode = AUTOAIM;
+            break;
+        case 0xaa:
+            temp_mode = BIGBUFF;
+            break;
+        default:
+            // TODO send error signal
+            throw 10;
+    }
+    inputData.cmdID = temp_mode;
+    inputData._level = receiveData.rawData[2];
+    if (receiveData.rawData[3] == 0) {
+        temp_mode = BIGBUFF;
+    }
+    else {
+        temp_mode = AUTOAIM;
+    }
+    inputData.dbusInfo = temp_mode;
+    RobotID rid;
+    switch (receiveData.rawData[4]) {
+        case 0x1:
+            rid = INFANTRY;
+            break;
+        case 0x13:
+            rid = INFANTRY;
+            break;
+        case 0x2:
+            rid = HERO;
+            break;
+        case 0x4:
+            rid = SENTRY;
+            break;
+        case 0x8:
+            rid = DRONE;
+            break;
+        default:
+            // TODO
+            throw 10;
+    }
+    inputData.roboID = rid;
+    int sum = 0;
+    // use size + 1 to count header
+    for (int i = 0; i < inputData.size + 1; i++) {
+        sum += (uint8_t) receiveData.rawData[i];
+    }
+    if (receiveData.rawData[5] != sum) {
+        // TODO re-request corrupted data
+        throw 20;
+    }
 
 }
 

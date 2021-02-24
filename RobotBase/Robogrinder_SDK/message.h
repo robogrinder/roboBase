@@ -6,6 +6,9 @@
 #define SERIAL_PORT_MESSAGE_H
 
 #include <stdint.h>
+#include <cstdint>
+
+
 // TODO: remove paddings
 struct serial_gimbal_data
 {
@@ -15,39 +18,44 @@ struct serial_gimbal_data
     int size;
 };
 
-struct serial_friction_data
-{
-    char rawData[20];
-    int head = 0xaf;
-    int id  = 2;
-    int size;
-};
-
+/**
+ * provides buffer for receiving data and constants
+ */
 struct serial_recive_data
 {
     char rawData[10];
-    int head = 0xaf;
-    int id = 3;
+    const int head = 0xaf;
+    int id;
     int size;
 };
 
-struct gimbal_msg
+
+/**
+ * receiveData is translated into input_data
+ */
+struct Input_data
 {
-    int16_t pitch;
-    int16_t yaw;
+    uint8_t cmdID;
+    uint8_t _level;
+    uint8_t dbusInfo;
+    uint8_t roboID;
+    // size does not include the header and the checksum (only count useful information)
+    const uint8_t size = 4;
 };
 
-struct friction_msg
-{
-    uint16_t left;
-    uint16_t right;
+// =======================
+// below enums are for input/output enum data types
+typedef enum _color {
+    BLUE, RED, UNKNOWN
+} Robot_color;
 
-};
+typedef enum _mode{
+    BIGBUFF, AUTOAIM, AUTOFIRE
+} mode;
 
-struct recive_msg
-{
-    uint8_t robot_id;
-    uint8_t rebot_level;
-    uint8_t vison_mode;
-};
+
+typedef enum _RobotID {
+    INFANTRY, HERO, SENTRY, DRONE
+} RobotID;
 #endif //SERIAL_PORT_MESSAGE_H
+

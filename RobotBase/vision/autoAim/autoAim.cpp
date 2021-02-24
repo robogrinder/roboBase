@@ -341,6 +341,7 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
 */
 
     }
+
     struct serial_gimbal_data data;
     data.size = 9;
     data.rawData[0] = data.head;

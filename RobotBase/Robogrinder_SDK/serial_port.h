@@ -21,7 +21,7 @@ public:
     //struct serial_gimbal_data pack_gimbal_data(const struct gimbal_msg &data);
     void send_data(const struct serial_gimbal_data &data);
     void restart_serial_port();
-    void recive_data(struct serial_recive_data &receiveData);
+    void receive_data(struct serial_recive_data &receiveData, struct Input_data &inputData);
     bool success_{};
     int fd{};
     int last_fd{};

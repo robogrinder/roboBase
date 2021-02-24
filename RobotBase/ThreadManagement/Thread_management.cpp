@@ -118,7 +118,6 @@ void ThreadManagement::Communication_thread() {
                 break;
         }
     }
-
 }
 
 void ThreadManagement::pause(char x) {
