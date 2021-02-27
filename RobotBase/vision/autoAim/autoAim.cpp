@@ -357,14 +357,8 @@ int ArmorDetector::armorTask(cv::Mat &color_img, OtherParam other_param, serial_
 
     // don't count check checkSum itself
     uint8_t checkSum = 0;
-    uint8_t temp;
     for (int i = 0; i < data.size - 1; i++) {
-        // count number of 1's
-        // TODO: use Hamming weight implementation in the future
-        temp = data.rawData[i];
-        for (int j = 0; j < 8; j++) {
-            checkSum += temp >> (7 - j) & 1;
-        }
+        checkSum += data.rawData[i];
     }
     data.rawData[8] = checkSum;
 

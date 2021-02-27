@@ -15,6 +15,7 @@ struct serial_gimbal_data
     uint8_t rawData[20];
     const int head = 0xaf;
     const int id = 1;
+    // how many elements of rawData are valid
     int size;
 };
 

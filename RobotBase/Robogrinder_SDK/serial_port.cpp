@@ -132,16 +132,15 @@ void serial_port::receive_data(struct serial_recive_data &receiveData, struct In
             throw 10;
     }
     inputData.roboID = rid;
-    int sum = 0;
+    uint8_t checkSum = 0;
     // use size + 1 to count header
     for (int i = 0; i < inputData.size + 1; i++) {
-        sum += (uint8_t) receiveData.rawData[i];
+        checkSum += (uint8_t) receiveData.rawData[i];
     }
-    if (receiveData.rawData[5] != sum) {
+    if (receiveData.rawData[5] != checkSum) {
         // TODO re-request corrupted data
         throw 20;
     }
-
 }
 
 
